@@ -15,7 +15,7 @@
  * License along with this software; If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-package com.turt2live.uuid.turt2live.v1;
+package com.turt2live.uuid.turt2live.v2;
 
 import com.turt2live.uuid.PlayerRecord;
 import org.junit.Before;
@@ -29,22 +29,22 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
-public class ApiV1ServiceTest {
+public class ApiV2ServiceTest {
 
     private static final String PLAYER_NAME = "turt2live";
     private static final UUID PLAYER_UUID = UUID.fromString("c465b154-3c29-4dbf-a7e3-e0869504b8d8");
-    private static final String[] EXPECTED_HISTORY = new String[0];
+    private static final String[] EXPECTED_HISTORY = new String[] {"turt2live"};
 
     private static final UUID BULK_UUID_1 = UUID.fromString("069a79f4-44e9-4726-a5be-fca90e38aaf5");
     private static final UUID BULK_UUID_2 = UUID.fromString("61699b2e-d327-4a01-9f1e-0ea8c3f06bc6");
     private static final String BULK_NAME_1 = "notch";
     private static final String BULK_NAME_2 = "dinnerbone";
 
-    private ApiV1Service service;
+    private ApiV2Service service;
 
     @Before
     public void setup() {
-        service = new ApiV1Service();
+        service = new ApiV2Service();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -99,7 +99,7 @@ public class ApiV1ServiceTest {
         assertNotNull(record);
         assertEquals(PLAYER_NAME, record.getName());
         assertEquals(PLAYER_UUID, record.getUuid());
-        assertApiV1Compliant(record);
+        assertApiV2Compliant(record);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ApiV1ServiceTest {
         assertNotNull(record);
         assertEquals(PLAYER_NAME, record.getName());
         assertEquals(PLAYER_UUID, record.getUuid());
-        assertApiV1Compliant(record);
+        assertApiV2Compliant(record);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class ApiV1ServiceTest {
         PlayerRecord record = service.getRandomSample();
 
         assertNotNull(record);
-        assertApiV1Compliant(record);
+        assertApiV2Compliant(record);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class ApiV1ServiceTest {
         assertEquals(10, records.size());
 
         for (PlayerRecord record : records) {
-            assertApiV1Compliant(record);
+            assertApiV2Compliant(record);
         }
     }
 
@@ -187,7 +187,7 @@ public class ApiV1ServiceTest {
             assertNotNull(record);
             assertNotNull(record.getName());
             assertNotNull(record.getUuid());
-            assertApiV1Compliant(record);
+            assertApiV1Compliant(record); // Yes, v2 returns a v1 compliant record
 
             if (record.getName().equals(name)) {
                 assertEquals(uuid, record.getUuid());
@@ -204,6 +204,14 @@ public class ApiV1ServiceTest {
         assertEquals(-1, record.getExpirationTime());
         assertEquals(-1, record.getTimeLeft());
         assertFalse(record.isCached());
+    }
+
+    private static void assertApiV2Compliant(PlayerRecord record) {
+        assertNotNull(record);
+        assertNotNull(record.getOfflineUuid());
+        //assertTrue(record.getExpirationTime() > 0); // Can't be asserted: expired records
+        //assertTrue(record.getTimeLeft() > 0); // Can't be asserted: expired records
+        //assertFalse(record.isCached()); // Can't be asserted: varies
     }
 
 }
