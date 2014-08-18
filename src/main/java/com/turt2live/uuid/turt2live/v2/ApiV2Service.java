@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Represents a service for http://uuid.turt2live.com/v1
+ * Represents a service for http://uuid.turt2live.com
  * <p/>
  * This service has a bulk lookup limit of 50 players and will not include
  * duplicates or skipped records in returning sets. Additionally, the player
