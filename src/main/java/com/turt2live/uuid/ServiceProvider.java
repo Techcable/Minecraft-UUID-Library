@@ -32,7 +32,7 @@ public interface ServiceProvider {
      *
      * @param uuid the UUID to lookup, cannot be null
      *
-     * @return the player record returned
+     * @return the player record returned, or null if there is a connection problem
      *
      * @throws java.lang.IllegalArgumentException thrown for null arguments
      */
@@ -43,7 +43,7 @@ public interface ServiceProvider {
      *
      * @param playerName the player name to lookup, cannot be null
      *
-     * @return the player record returned
+     * @return the player record returned, or null if there is a connection problem
      *
      * @throws java.lang.IllegalArgumentException thrown for null arguments
      */
@@ -54,7 +54,7 @@ public interface ServiceProvider {
      *
      * @param uuid the UUID to lookup, cannot be null
      *
-     * @return the player's past names
+     * @return the player's past names, or null if there is a connection problem
      *
      * @throws java.lang.IllegalArgumentException thrown for null arguments
      */
@@ -67,7 +67,7 @@ public interface ServiceProvider {
      *
      * @param uuids the uuids to lookup, no element can be null
      *
-     * @return a list of player records
+     * @return a list of player records, or null if there is a connection problem
      *
      * @throws java.lang.IllegalArgumentException thrown for null values
      */
@@ -80,7 +80,7 @@ public interface ServiceProvider {
      *
      * @param playerNames the player names to lookup, no element can be null
      *
-     * @return the list of player records
+     * @return the list of player records, or null if there is a connection problem
      *
      * @throws java.lang.IllegalArgumentException thrown for null values
      */
@@ -89,7 +89,7 @@ public interface ServiceProvider {
     /**
      * Gets a single, possibly expired, player record from the service
      *
-     * @return the player record
+     * @return the player record, or null if there is a connection problem
      */
     public PlayerRecord getRandomSample();
 
@@ -100,7 +100,7 @@ public interface ServiceProvider {
      *
      * @param amount the amount of player records to fetch, cannot be negative or zero
      *
-     * @return the player records
+     * @return the player records, or null if there is a connection problem
      *
      * @throws java.lang.IllegalArgumentException thrown for values less than or equal to zero
      */

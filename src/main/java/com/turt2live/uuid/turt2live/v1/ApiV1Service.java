@@ -18,8 +18,13 @@
 package com.turt2live.uuid.turt2live.v1;
 
 import com.turt2live.uuid.PlayerRecord;
+import com.turt2live.uuid.turt2live.Turt2LivePlayerRecord;
 import com.turt2live.uuid.turt2live.Turt2LiveService;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +38,7 @@ import java.util.UUID;
  * Records returned from this API service are not known to expire or to be
  * cached and instead have default values returned.
  */
-public class ApiV1Service implements Turt2LiveService {
+public class ApiV1Service extends Turt2LiveService {
 
     private final String connectionUrl = "http://uuid.turt2live.com/api/v1";
     private final String serviceName = "turt2live v1";
@@ -45,59 +50,159 @@ public class ApiV1Service implements Turt2LiveService {
     }
 
     @Override
-    public UUID convertUuid(String uuid) {
-        if (uuid == null) throw new IllegalArgumentException("UUID cannot be null");
-        if (uuid.length() != 32) return null;
-
-        String dashed = uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32);
-
-        UUID retUuid = null;
-        try {
-            retUuid = UUID.fromString(dashed);
-        } catch (Exception ignored) {
-        }
-
-        return retUuid;
-    }
-
-    @Override
     public String getConnectionUrl() {
         return connectionUrl;
     }
 
     @Override
-    public PlayerRecord doLookup(UUID uuid) {
+    protected PlayerRecord parsePlayerRecord(String json) {
+        if (json == null) return null;
+
+        JSONObject jsonValue = (JSONObject) JSONValue.parse(json);
+        if (jsonValue.containsKey("uuid") && jsonValue.containsKey("name")) {
+            String uuidStr = (String) jsonValue.get("uuid");
+            String name = (String) jsonValue.get("name");
+
+            if (name.equals("unknown") || uuidStr.equals("unknown")) return null;
+
+            UUID uuid = convertUuid(uuidStr);
+
+            return new Turt2LivePlayerRecord(uuid, name);
+        }
+
         return null;
+    }
+
+    @Override
+    public PlayerRecord doLookup(UUID uuid) {
+        return parsePlayerRecord(doUrlRequest(getConnectionUrl() + "/name/" + convertUuid(uuid)));
     }
 
     @Override
     public PlayerRecord doLookup(String playerName) {
-        return null;
+        if (playerName == null) throw new IllegalArgumentException();
+        return parsePlayerRecord(doUrlRequest(getConnectionUrl() + "/uuid/" + playerName));
     }
 
     @Override
     public String[] getNameHistory(UUID uuid) {
-        return new String[0];
+        String response = doUrlRequest(getConnectionUrl() + "/history/" + convertUuid(uuid));
+        if (response != null) {
+            JSONObject json = (JSONObject) JSONValue.parse(response);
+
+            if (json.containsKey("names")) {
+                JSONArray array = (JSONArray) json.get("names");
+                String[] names = new String[array.size()];
+
+                int i = 0;
+                for (Object o : array) {
+                    names[i] = o.toString();
+                    i++;
+                }
+
+                return names;
+            }
+        }
+
+        return null;
     }
 
     @Override
     public List<PlayerRecord> doBulkLookup(UUID... uuids) {
+        String list = combine(uuids);
+        String response = doUrlRequest(getConnectionUrl() + "/name/list/" + list);
+
+        if (response != null) {
+            JSONObject json = (JSONObject) JSONValue.parse(response);
+
+            if (json.containsKey("results")) {
+                JSONObject object = (JSONObject) json.get("results");
+                List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+
+                for (Object key : object.keySet()) {
+                    UUID uuid = convertUuid(key.toString());
+                    String name = (String) ((JSONObject) object.get(key)).get("name");
+
+                    if (uuid == null || name.equals("unknown")) continue;
+
+                    PlayerRecord record = new Turt2LivePlayerRecord(uuid, name);
+                    records.add(record);
+                }
+
+                return records;
+            }
+        }
+
         return null;
     }
 
     @Override
     public List<PlayerRecord> doBulkLookup(String... playerNames) {
+        String list = combine(playerNames);
+        String response = doUrlRequest(getConnectionUrl() + "/uuid/list/" + list);
+
+        if (response != null) {
+            JSONObject json = (JSONObject) JSONValue.parse(response);
+
+            if (json.containsKey("results")) {
+                JSONObject object = (JSONObject) json.get("results");
+                List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+
+                for (Object key : object.keySet()) {
+                    String name = key.toString();
+                    UUID uuid = convertUuid((String) object.get(key));
+
+                    if (uuid == null || name.equals("unknown")) continue;
+
+                    PlayerRecord record = new Turt2LivePlayerRecord(uuid, name);
+                    records.add(record);
+                }
+
+                return records;
+            }
+        }
+
         return null;
+    }
+
+    private String combine(Object... values) {
+        if (values == null || values.length == 0) throw new IllegalArgumentException();
+
+        StringBuilder builder = new StringBuilder();
+
+        for (Object o : values) {
+            if (o == null) throw new IllegalArgumentException();
+
+            builder.append(o.toString()).append(";");
+        }
+
+        return builder.substring(0, builder.length() - 1);
     }
 
     @Override
     public PlayerRecord getRandomSample() {
+        List<PlayerRecord> records = getRandomSample(1);
+        if (records != null && records.size() > 0) return records.get(0);
         return null;
     }
 
     @Override
     public List<PlayerRecord> getRandomSample(int amount) {
-        return null;
+        if (amount <= 0) throw new IllegalArgumentException();
+
+        String response = doUrlRequest(getConnectionUrl() + "/random/" + amount);
+        if (response == null || response.length() <= 2) return null;
+
+        JSONArray array = (JSONArray) JSONValue.parse(response);
+        List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+
+        for (Object o : array) {
+            PlayerRecord record = parsePlayerRecord(o.toString());
+
+            if (record != null) records.add(record);
+        }
+
+        return records;
     }
 
     @Override

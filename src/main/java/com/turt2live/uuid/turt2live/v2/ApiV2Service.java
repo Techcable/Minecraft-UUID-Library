@@ -30,36 +30,19 @@ import java.util.UUID;
  * duplicates or skipped records in returning sets. Additionally, the player
  * history will include the player's current name.
  */
-public class ApiV2Service implements Turt2LiveService {
+public class ApiV2Service extends Turt2LiveService {
 
     private final String connectionUrl = "http://uuid.turt2live.com/api/v2";
     private final String serviceName = "turt2live v2";
 
     @Override
-    public String convertUuid(UUID uuid) {
-        if (uuid == null) throw new IllegalArgumentException("UUID cannot be null");
-        return uuid.toString().replace("-", "");
-    }
-
-    @Override
-    public UUID convertUuid(String uuid) {
-        if (uuid == null) throw new IllegalArgumentException("UUID cannot be null");
-        if (uuid.length() != 32) return null;
-
-        String dashed = uuid.substring(0, 8) + "-" + uuid.substring(8, 12) + "-" + uuid.substring(12, 16) + "-" + uuid.substring(16, 20) + "-" + uuid.substring(20, 32);
-
-        UUID retUuid = null;
-        try {
-            retUuid = UUID.fromString(dashed);
-        } catch (Exception ignored) {
-        }
-
-        return retUuid;
-    }
-
-    @Override
     public String getConnectionUrl() {
         return connectionUrl;
+    }
+
+    @Override
+    protected PlayerRecord parsePlayerRecord(String json) {
+        return null;
     }
 
     @Override
