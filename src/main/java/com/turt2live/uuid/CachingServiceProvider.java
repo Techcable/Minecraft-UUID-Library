@@ -79,6 +79,33 @@ public class CachingServiceProvider implements ServiceProvider {
         this.cacheTimeMax = maximumCacheTime * 1000;
     }
 
+    /**
+     * Pre-sets the cache to the specified values. This uses the default
+     * cache time defined in this provider for the duration.
+     *
+     * @param playerNames the player names to cache, cannot be null
+     */
+    public void seedLoad(Map<UUID, String> playerNames) {
+        seedLoad(playerNames, cacheTimeMax);
+    }
+
+    /**
+     * Pre-sets the cache to the specified values. This uses the supplied
+     * cache time (in seconds) for the expiration.
+     *
+     * @param playerNames the player names to cache, cannot be null
+     * @param cacheTime   the cache time, in seconds. Must be positive and non-zero
+     */
+    public void seedLoad(Map<UUID, String> playerNames, long cacheTime) {
+        if (playerNames == null || cacheTime <= 0) throw new IllegalArgumentException();
+
+        for (Map.Entry<UUID, String> record : playerNames.entrySet()) {
+            if (record.getKey() == null || record.getValue() == null) continue;
+            PlayerRecord entry = new MemoryPlayerRecord(record.getKey(), record.getValue());
+            cache(entry, cacheTime);
+        }
+    }
+
     private PlayerRecord checkRecord(UUID uuid) {
         CachedRecord existing = byUuid.get(uuid);
         if (existing == null || existing.isExpired()) {
@@ -104,7 +131,11 @@ public class CachingServiceProvider implements ServiceProvider {
     }
 
     private void cache(PlayerRecord record) {
-        CachedRecord cachedRecord = new CachedRecord(record, record.getExpirationTime() <= 0 ? cacheTimeMax : record.getExpirationTime());
+        cache(record, record.getExpirationTime() <= 0 ? cacheTimeMax : record.getExpirationTime());
+    }
+
+    private void cache(PlayerRecord record, long time) {
+        CachedRecord cachedRecord = new CachedRecord(record, time);
         byName.put(record.getName(), cachedRecord);
         byUuid.put(record.getUuid(), cachedRecord);
     }
