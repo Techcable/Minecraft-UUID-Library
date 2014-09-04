@@ -19,11 +19,24 @@ package com.turt2live.uuid;
 
 import java.util.UUID;
 
-class MemoryPlayerRecord implements PlayerRecord {
+/**
+ * Represents a simple memory-based player record with no default caching
+ * schemes. This simply will only contain a player name and UUID. All other
+ * values are their documented defaults.
+ *
+ * @author turt2live
+ */
+public class MemoryPlayerRecord implements PlayerRecord {
 
     private UUID uuid;
     private String name;
 
+    /**
+     * Creates a new memory record
+     *
+     * @param uuid the uuid, cannot be null
+     * @param name the name, cannot be null
+     */
     public MemoryPlayerRecord(UUID uuid, String name) {
         if (uuid == null || name == null) throw new IllegalArgumentException();
         this.uuid = uuid;
