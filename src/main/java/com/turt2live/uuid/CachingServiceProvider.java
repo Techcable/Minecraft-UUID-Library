@@ -47,8 +47,8 @@ public class CachingServiceProvider implements ServiceProvider {
         }
     }
 
-    private Map<String, CachedRecord> byName = new HashMap<String, CachedRecord>();
-    private Map<UUID, CachedRecord> byUuid = new HashMap<UUID, CachedRecord>();
+    private Map<String, CachedRecord> byName = new HashMap<>();
+    private Map<UUID, CachedRecord> byUuid = new HashMap<>();
     private ServiceProvider serviceProvider;
     private long cacheTimeMax = 1 * 60 * 60 * 1000; // 60 minutes
 
@@ -158,7 +158,7 @@ public class CachingServiceProvider implements ServiceProvider {
     @Override
     public List<PlayerRecord> doBulkLookup(UUID... uuids) {
         if (uuids == null) throw new IllegalArgumentException();
-        List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+        List<PlayerRecord> records = new ArrayList<>();
 
         for (UUID uuid : uuids) {
             if (uuid == null) throw new IllegalArgumentException();
@@ -179,7 +179,7 @@ public class CachingServiceProvider implements ServiceProvider {
     @Override
     public List<PlayerRecord> doBulkLookup(String... playerNames) {
         if (playerNames == null) throw new IllegalArgumentException();
-        List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+        List<PlayerRecord> records = new ArrayList<>();
 
         for (String playerName : playerNames) {
             if (playerName == null) throw new IllegalArgumentException();
@@ -205,7 +205,7 @@ public class CachingServiceProvider implements ServiceProvider {
     @Override
     public List<PlayerRecord> getRandomSample(int amount) {
         if (amount <= 0) throw new IllegalArgumentException();
-        List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+        List<PlayerRecord> records = new ArrayList<>();
 
         Random random = new Random();
         while (records.size() < amount && byUuid.size() > 0 && records.size() < byUuid.size()) {

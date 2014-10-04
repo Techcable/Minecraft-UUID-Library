@@ -131,7 +131,7 @@ public class ApiV2Service extends Turt2LiveService {
 
             if (json.containsKey("results")) {
                 JSONObject object = (JSONObject) json.get("results");
-                List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+                List<PlayerRecord> records = new ArrayList<>();
 
                 for (Object key : object.keySet()) {
                     UUID uuid = UUID.fromString(key.toString());
@@ -161,7 +161,7 @@ public class ApiV2Service extends Turt2LiveService {
 
             if (json.containsKey("results")) {
                 JSONObject object = (JSONObject) json.get("results");
-                List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+                List<PlayerRecord> records = new ArrayList<>();
 
                 for (Object key : object.keySet()) {
                     String name = key.toString();
@@ -197,7 +197,7 @@ public class ApiV2Service extends Turt2LiveService {
     @Override
     public PlayerRecord getRandomSample() {
         List<PlayerRecord> records = getRandomSample(1);
-        if (records != null && records.size() > 0) return records.get(0);
+        if (records != null && !records.isEmpty()) return records.get(0);
         return null;
     }
 
@@ -209,7 +209,7 @@ public class ApiV2Service extends Turt2LiveService {
         if (response == null || response.length() <= 2) return null;
 
         JSONArray array = (JSONArray) ((JSONObject) JSONValue.parse(response)).get("results");
-        List<PlayerRecord> records = new ArrayList<PlayerRecord>();
+        List<PlayerRecord> records = new ArrayList<>();
 
         for (Object o : array) {
             PlayerRecord record = parsePlayerRecord(o.toString());
