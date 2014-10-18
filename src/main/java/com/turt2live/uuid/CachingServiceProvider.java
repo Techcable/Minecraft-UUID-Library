@@ -142,12 +142,14 @@ public class CachingServiceProvider implements ServiceProvider {
 
     @Override
     public PlayerRecord doLookup(UUID uuid) {
-        return doBulkLookup(uuid).get(0);
+        List<PlayerRecord> results = doBulkLookup(uuid);
+        return results == null || results.isEmpty() ? null : results.get(0);
     }
 
     @Override
     public PlayerRecord doLookup(String playerName) {
-        return doBulkLookup(playerName).get(0);
+        List<PlayerRecord> results = doBulkLookup(playerName);
+        return results == null || results.isEmpty() ? null : results.get(0);
     }
 
     @Override
@@ -208,7 +210,7 @@ public class CachingServiceProvider implements ServiceProvider {
         List<PlayerRecord> records = new ArrayList<>();
 
         Random random = new Random();
-        while (records.size() < amount && byUuid.size() > 0 && records.size() < byUuid.size()) {
+        while (records.size() < amount && !byUuid.isEmpty() && records.size() < byUuid.size()) {
             Set<UUID> keys = byUuid.keySet();
             UUID randKey = keys.toArray(new UUID[keys.size()])[random.nextInt(keys.size())];
             PlayerRecord randRecord = checkRecord(randKey);
