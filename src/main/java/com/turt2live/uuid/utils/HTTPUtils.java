@@ -94,4 +94,14 @@ public class HTTPUtils {
             return null;
         }
     }
+    
+    public static Object getJson(String url) {
+        String rawResponse = get(url);
+        if (rawResponse == null) return null;
+        try {
+            return PARSER.parse(rawResponse);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
