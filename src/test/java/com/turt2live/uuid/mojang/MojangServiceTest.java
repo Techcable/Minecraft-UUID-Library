@@ -1,6 +1,7 @@
 package com.turt2live.uuid.mojang;
 
 import com.turt2live.uuid.PlayerRecord;
+import com.turt2live.uuid.utils.HTTPUtils.RateLimitedException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,13 @@ public class MojangServiceTest {
     
     @Test
     public void getByNameTest() {
-        PlayerRecord record = service.doLookup(PLAYER_NAME);
+        PlayerRecord record;
+        try {
+            record = service.doLookup(PLAYER_NAME);
+        } catch (RateLimitedException ex) {
+            return;
+        }
+        
         assertNotNull(record);
         assertEquals(PLAYER_NAME, record.getName());
         assertEquals(PLAYER_UUID, record.getUuid());
@@ -51,7 +58,7 @@ public class MojangServiceTest {
     @Test
     public void getHistoryTest() {
         String[] history = service.getNameHistory(PLAYER_UUID);
-
+        
         assertNotNull(history);
         assertArrayEquals(PLAYER_HISTORY, history);
     }
@@ -69,7 +76,12 @@ public class MojangServiceTest {
     
     @Test
     public void getBulkUUIDTest() {
-        List<PlayerRecord> records = service.doBulkLookup(UUID_1, UUID_2, UUID_3);
+        List<PlayerRecord> records;
+        try {
+            records = service.doBulkLookup(UUID_1, UUID_2, UUID_3);
+        } catch (RateLimitedException ex) {
+            return;
+        }
         
         assertNotNull(records);
         assertEquals(2, records.size());

@@ -21,7 +21,12 @@ public class HTTPUtils {
         BufferedReader reader = null;
         try {
             URL url = new URL(rawUrl);
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            
+            if (connection.getResponseCode() == 429) throw new RateLimitedException(connection.getResponseMessage());
+            
+            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuffer result = new StringBuffer();
             String line;
             while ((line = reader.readLine()) != null) result.append(line);
@@ -47,9 +52,12 @@ public class HTTPUtils {
             URL url = new URL(rawUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("POST");
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
             connection.setRequestProperty("Content-Type", contentType);
             out = connection.getOutputStream();
             out.write(body.getBytes());
+            if (connection.getResponseCode() == 429) throw new RateLimitedException(connection.getResponseMessage());
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuffer result = new StringBuffer();
             String line;
@@ -102,6 +110,12 @@ public class HTTPUtils {
             return PARSER.parse(rawResponse);
         } catch (Exception e) {
             return null;
+        }
+    }
+    
+    public static class RateLimitedException extends RuntimeException {
+        public RateLimitedException(String msg) {
+            super(msg);
         }
     }
 }
