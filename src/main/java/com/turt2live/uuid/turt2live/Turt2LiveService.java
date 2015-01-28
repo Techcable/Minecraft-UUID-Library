@@ -19,6 +19,7 @@ package com.turt2live.uuid.turt2live;
 
 import com.turt2live.uuid.PlayerRecord;
 import com.turt2live.uuid.ServiceProvider;
+import com.turt2live.uuid.utils.HTTPUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -99,20 +100,7 @@ public abstract class Turt2LiveService implements ServiceProvider {
      * @throws java.lang.IllegalArgumentException thrown for null arguments
      */
     protected String doUrlRequest(String url) {
-        String result = "";
-
-        try {
-            URL urlConn = new URL(url);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(urlConn.openStream()));
-            String line;
-            while ((line = reader.readLine()) != null) result += line;
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            result = null;
-        }
-
-        return result;
+        return HTTPUtils.get(url);
     }
 
 }
